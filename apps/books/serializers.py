@@ -57,3 +57,33 @@ class BookWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Book.objects.create(owner=self.context["request"].user, **validated_data)
+
+
+class BookSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    owner = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Book
+        fields = [
+            "id",
+            "owner",
+            "title",
+            "author",
+            "genre",
+            "condition",
+            "type",
+            "description",
+            "image",
+            "status",
+            "share",
+            "created_at",
+        ]
+
+    def get_owner(self, obj):
+        return {
+            "id": obj.owner_id,
+            "name": obj.owner.name,
+            "telegram_id": obj.owner.telegram_id,
+            "telegram_username": obj.owner.telegram_username,
+        }

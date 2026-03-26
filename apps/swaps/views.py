@@ -4,6 +4,7 @@ from .models import SwapRequest, Swap, SwapRequestStatus
 from .serializers import SwapRequestSerializer, SwapSerializer
 from apps.books.models import Book, BookStatus
 
+
 # ➕ SwapRequest yaratish
 class SwapRequestCreateView(generics.CreateAPIView):
     queryset = SwapRequest.objects.all()
@@ -20,16 +21,12 @@ class SwapRequestCreateView(generics.CreateAPIView):
             raise ValidationError("Book is not available")
 
         if SwapRequest.objects.filter(
-            from_user=self.request.user,
-            book=book,
-            status=SwapRequestStatus.PENDING
+            from_user=self.request.user, book=book, status=SwapRequestStatus.PENDING
         ).exists():
             raise ValidationError("You already requested this book")
 
-        serializer.save(
-            from_user=self.request.user,
-            to_user=book.owner
-        )
+        serializer.save(from_user=self.request.user, to_user=book.owner)
+
 
 # ➕ Incoming swap requests (to me)
 class IncomingSwapListView(generics.ListAPIView):
@@ -39,6 +36,7 @@ class IncomingSwapListView(generics.ListAPIView):
     def get_queryset(self):
         return SwapRequest.objects.filter(to_user=self.request.user)
 
+
 # ➕ Outgoing swap requests (from me)
 class OutgoingSwapListView(generics.ListAPIView):
     serializer_class = SwapRequestSerializer
@@ -46,6 +44,7 @@ class OutgoingSwapListView(generics.ListAPIView):
 
     def get_queryset(self):
         return SwapRequest.objects.filter(from_user=self.request.user)
+
 
 # ✅ Accept swap request
 class SwapRequestAcceptView(generics.UpdateAPIView):
@@ -70,8 +69,9 @@ class SwapRequestAcceptView(generics.UpdateAPIView):
             book=swap_request.book,
             owner=swap_request.to_user,
             borrower=swap_request.from_user,
-            type=swap_request.book.type
+            type=swap_request.book.type,
         )
+
 
 # ❌ Reject swap request
 class SwapRequestRejectView(generics.UpdateAPIView):
